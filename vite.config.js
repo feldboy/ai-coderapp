@@ -15,8 +15,6 @@ export default defineConfig({
     host: true
   },
   esbuild: {
-    loader: {
-      '.js': 'jsx'
-    }
+    jsx: 'automatic'
   }
 });
