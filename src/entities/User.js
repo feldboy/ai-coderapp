@@ -1,121 +1,44 @@
-import { db } from "@/lib/db";
+// Placeholder for User entity.  This is also highly dependent on your auth setup.
 
-/**
- * User entity class for handling user operations
- */
-export class User {
-  /**
-   * Create a new user
-   * @param {Object} userData - The user data
-   * @returns {Promise<Object>} The created user with ID
-   */
-  static async create(userData) {
-    try {
-      const user = {
-        name: userData.name || "",
-        email: userData.email || "",
-        avatar: userData.avatar || "",
-        role: userData.role || "user",
-        createdAt: new Date(),
-        updatedAt: new Date()
-      };
-      
-      const result = await db.collection("users").add(user);
-      
-      return {
-        id: result.id,
-        ...user
-      };
-    } catch (error) {
-      console.error("Error creating user:", error);
-      throw error;
+const USER_KEY = "currentUser";
+
+export const User = {
+    me: async () => {
+        // Example using localStorage (replace with your actual authentication/user data)
+        const user = JSON.parse(localStorage.getItem(USER_KEY) || "null");
+
+        if (!user) {
+          // In a real app, you might redirect to a login page or throw an error.
+          // For this example, we'll return a default user object.
+            return {
+              full_name: "Guest User",
+              email: "guest@example.com",
+              role: "guest",
+              preferences: { defaultDetailLevel: "brief" }
+            };
+        }
+
+        return user;
+    },
+
+    updateMyUserData: async (userData) => {
+         // Example using localStorage
+        const currentUser = await User.me(); // Get the current user
+        if (!currentUser) {
+            throw new Error("No user logged in."); // Or handle differently
+        }
+
+        const updatedUser = {
+            ...currentUser,
+            ...userData // Overwrite with provided data (e.g., preferences)
+        };
+        localStorage.setItem(USER_KEY, JSON.stringify(updatedUser));
+        return updatedUser;
+    },
+
+    logout: async () => {
+      // Example using localStorage.  Clear user data.
+        localStorage.removeItem(USER_KEY);
+      // In a real app with a backend, you would also invalidate the session/token on the server.
     }
-  }
-  
-  /**
-   * Get a user by ID
-   * @param {string} id - The user ID
-   * @returns {Promise<Object>} The user data
-   */
-  static async getById(id) {
-    try {
-      const doc = await db.collection("users").doc(id).get();
-      
-      if (!doc.exists) {
-        throw new Error("User not found");
-      }
-      
-      return {
-        id: doc.id,
-        ...doc.data()
-      };
-    } catch (error) {
-      console.error("Error getting user:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Get user by email
-   * @param {string} email - The user's email
-   * @returns {Promise<Object>} The user data
-   */
-  static async getByEmail(email) {
-    try {
-      const snapshot = await db.collection("users")
-        .where("email", "==", email)
-        .limit(1)
-        .get();
-      
-      if (snapshot.empty) {
-        throw new Error("User not found");
-      }
-      
-      const doc = snapshot.docs[0];
-      return {
-        id: doc.id,
-        ...doc.data()
-      };
-    } catch (error) {
-      console.error("Error getting user by email:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Update a user
-   * @param {string} id - The user ID
-   * @param {Object} data - The data to update
-   * @returns {Promise<Object>} The updated user
-   */
-  static async update(id, data) {
-    try {
-      const updateData = {
-        ...data,
-        updatedAt: new Date()
-      };
-      
-      await db.collection("users").doc(id).update(updateData);
-      
-      return await this.getById(id);
-    } catch (error) {
-      console.error("Error updating user:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Delete a user
-   * @param {string} id - The user ID
-   * @returns {Promise<boolean>} Success indicator
-   */
-  static async delete(id) {
-    try {
-      await db.collection("users").doc(id).delete();
-      return true;
-    } catch (error) {
-      console.error("Error deleting user:", error);
-      throw error;
-    }
-  }
-}
+};

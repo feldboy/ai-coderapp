@@ -1,164 +1,58 @@
-import { db } from "@/lib/db";
+// Placeholder for your Story entity logic (using local storage, a backend API, etc.)
+//  This is HIGHLY dependent on how you are managing data.
 
-/**
- * Story entity class for handling user story operations
- */
-export class Story {
-  /**
-   * Create a new user story
-   * @param {Object} storyData - The story data
-   * @returns {Promise<Object>} The created story with ID
-   */
-  static async create(storyData) {
-    try {
-      // Set default values if not provided
-      const story = {
-        storyTitle: storyData.title || "",
-        userStoryText: storyData.storyText || "",
-        taskDescription: storyData.description || "",
-        assignee: storyData.assignee || "",
-        dueDate: storyData.dueDate || null,
-        priority: storyData.priority || "Medium",
-        status: storyData.status || "To Do",
-        createdAt: new Date(),
-        updatedAt: new Date(),
-        
-        // Additional fields from AI response
-        acceptanceCriteria: storyData.acceptanceCriteria || [],
-        investValidation: storyData.investValidation || {},
-        personaContext: storyData.personaContext || "",
-        collaborationPoint: storyData.collaborationPoint || "",
-        improvementSuggestion: storyData.improvementSuggestion || ""
-      };
-      
-      const result = await db.collection("userStories").add(story);
-      
-      return {
-        id: result.id,
-        ...story
-      };
-    } catch (error) {
-      console.error("Error creating story:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Get a story by ID
-   * @param {string} id - The story ID
-   * @returns {Promise<Object>} The story data
-   */
-  static async getById(id) {
-    try {
-      const doc = await db.collection("userStories").doc(id).get();
-      
-      if (!doc.exists) {
-        throw new Error("Story not found");
-      }
-      
-      return {
-        id: doc.id,
-        ...doc.data()
-      };
-    } catch (error) {
-      console.error("Error getting story:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Get all stories with optional filtering
-   * @param {Object} filters - Optional filters (status, assignee, etc.)
-   * @returns {Promise<Array>} Array of stories
-   */
-  static async getAll(filters = {}) {
-    try {
-      let query = db.collection("userStories");
-      
-      // Apply filters if provided
-      if (filters.status) {
-        query = query.where("status", "==", filters.status);
-      }
-      
-      if (filters.assignee) {
-        query = query.where("assignee", "==", filters.assignee);
-      }
-      
-      if (filters.priority) {
-        query = query.where("priority", "==", filters.priority);
-      }
-      
-      // Always sort by createdAt descending (newest first)
-      query = query.orderBy("createdAt", "desc");
-      
-      const snapshot = await query.get();
-      
-      return snapshot.docs.map(doc => ({
-        id: doc.id,
-        ...doc.data()
-      }));
-    } catch (error) {
-      console.error("Error getting stories:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Update a story
-   * @param {string} id - The story ID
-   * @param {Object} data - The data to update
-   * @returns {Promise<Object>} The updated story
-   */
-  static async update(id, data) {
-    try {
-      // Always update the updatedAt timestamp
-      const updateData = {
-        ...data,
-        updatedAt: new Date()
-      };
-      
-      await db.collection("userStories").doc(id).update(updateData);
-      
-      // Return the updated document
-      return await this.getById(id);
-    } catch (error) {
-      console.error("Error updating story:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Delete a story
-   * @param {string} id - The story ID
-   * @returns {Promise<boolean>} Success indicator
-   */
-  static async delete(id) {
-    try {
-      await db.collection("userStories").doc(id).delete();
-      return true;
-    } catch (error) {
-      console.error("Error deleting story:", error);
-      throw error;
-    }
-  }
-  
-  /**
-   * Update story status
-   * @param {string} id - The story ID
-   * @param {string} status - The new status
-   * @returns {Promise<Object>} The updated story
-   */
-  static async updateStatus(id, status) {
-    return this.update(id, { status });
-  }
-  
-  /**
-   * Assign a story to a user
-   * @param {string} id - The story ID
-   * @param {string} assignee - The assignee name or ID
-   * @returns {Promise<Object>} The updated story
-   */
-  static async assign(id, assignee) {
-    return this.update(id, { assignee });
-  }
-}
+const STORY_KEY = "stories";
+
+export const Story = {
+    create: async (storyData) => {
+        // Example using localStorage (replace with your actual data persistence)
+        const stories = JSON.parse(localStorage.getItem(STORY_KEY) || "[]");
+        const newStory = {
+            id: Date.now(), // Simple ID for example; use a UUID library in production
+            ...storyData,
+            createdAt: new Date(),
+            updatedAt: new Date(),
+        };
+        localStorage.setItem(STORY_KEY, JSON.stringify([...stories, newStory]));
+        return newStory;
+    },
+
+    list: async (orderBy = "-createdAt") => {
+         // Example using localStorage
+        const stories = JSON.parse(localStorage.getItem(STORY_KEY) || "[]");
+
+        // Basic sorting (add more robust sorting if needed)
+        const sortFunction = (a, b) => {
+            if (orderBy.startsWith("-")) {
+                const field = orderBy.slice(1);
+                return new Date(b[field]) - new Date(a[field]); // Descending
+            } else {
+                return new Date(a[orderBy]) - new Date(b[orderBy]); // Ascending
+            }
+        };
+        return stories.sort(sortFunction);
+    },
+    update: async (id, updatedStoryData) => {
+        //Example useing localStorage
+        let stories = JSON.parse(localStorage.getItem(STORY_KEY) || "[]");
+        stories = stories.map((story) => {
+            if (story.id === id) {
+                return {
+                    ...story,
+                    ...updatedStoryData,
+                    updatedAt: new Date(),
+                };
+            }
+            return story;
+        });
+        localStorage.setItem(STORY_KEY, JSON.stringify(stories));
+        return stories.find((story) => story.id === id);
+    },
+    delete: async (id) => {
+        // Example using localStorage
+        let stories = JSON.parse(localStorage.getItem(STORY_KEY) || "[]");
+        stories = stories.filter((story) => story.id !== id);
+        localStorage.setItem(STORY_KEY, JSON.stringify(stories));
+        return true;
+    },
+};

@@ -2,29 +2,92 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+@layer base {
+    :root {
+        --background: #f0f2f5; /* Light gray background */
+        --foreground: #333333; /* Dark gray foreground */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+        --card: #ffffff; /* White card background */
+        --card-foreground: #333333; /* Dark gray card foreground */
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
+        --popover: 0 0% 100%;
+        --popover-foreground: 222.2 84% 4.9%;
+
+        --primary: #007bff; /* Bootstrap primary blue */
+        --primary-foreground: #ffffff;
+
+        --secondary: #e6e6e6; /* Light gray secondary */
+        --secondary-foreground: #333333; /* Dark gray secondary foreground */
+
+        --muted: #e6e6e6; /* Light gray muted */
+        --muted-foreground: #777777; /* Medium gray muted foreground */
+
+        --accent: #d4d4d4; /* Very light gray accent */
+        --accent-foreground: #333333; /* Dark gray accent foreground */
+
+        --destructive: #dc3545; /* Bootstrap danger red */
+        --destructive-foreground: #ffffff;
+
+        --border: #d4d4d4; /* Lighter border */
+        --input: #e0e0e0; /* Very very light gray input */
+        --ring: #6b7280; /* Muted primary color ring */
+
+        --radius: 0.5rem;
+    }
+
+    .dark {
+        --background: #1a1a1a; /* Darker background */
+        --foreground: #eeeeee; /* Light gray foreground */
+
+        --card: #262626; /* Even darker card background */
+        --card-foreground: #eeeeee; /* Light gray card foreground */
+
+        --popover: 222.2 84% 4.9%;
+        --popover-foreground: 210 40% 98%;
+
+        --primary: #9ca3af; /* Muted primary color (gray-400) */
+        --primary-foreground: #ffffff;
+
+        --secondary: #404040; /* Darker secondary */
+        --secondary-foreground: #eeeeee; /* Light gray secondary foreground */
+
+        --muted: #404040; /* Darker muted */
+        --muted-foreground: #aaaaaa; /* Medium gray muted foreground */
+
+        --accent: #525252; /* Slightly lighter dark gray accent */
+        --accent-foreground: #eeeeee; /* Light gray accent foreground */
+
+        --destructive: #dc3545; /* Bootstrap danger red */
+        --destructive-foreground: #ffffff;
+
+        --border: #666666; /* Medium dark gray border */
+        --input: #525252; /* Slightly lighter dark gray input */
+        --ring: #9ca3af; /* Muted primary color ring */
+    }
 }
+
+@layer base {
+    * {
+        @apply border-border;
+    }
+
+    body {
+        @apply bg-background text-foreground;
+        font-feature-settings: "rlig" 1, "calt" 1;
+    }
+}
+
 
 body {
-  margin: 0;
-  display: flex;
-  min-width: 320px;
-  min-height: 100vh;
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+        sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 
-#root {
-  width: 100%;
-  height: 100%;
+code {
+    font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
+        monospace;
 }
